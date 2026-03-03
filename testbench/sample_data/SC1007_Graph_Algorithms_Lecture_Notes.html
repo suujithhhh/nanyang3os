@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SC2001 — Graph Algorithms: Lecture Notes</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Georgia', serif;
+      font-size: 11.5pt;
+      line-height: 1.75;
+      color: #1a1a1a;
+      background: #fff;
+      padding: 0;
+    }
+
+    .page {
+      width: 210mm;
+      min-height: 297mm;
+      margin: 0 auto;
+      padding: 22mm 22mm 20mm 22mm;
+      page-break-after: always;
+    }
+
+    /* ── Header ── */
+    .doc-header {
+      border-bottom: 2px solid #1a1a2e;
+      padding-bottom: 10px;
+      margin-bottom: 18px;
+    }
+    .doc-header .course-code {
+      font-family: 'Courier New', monospace;
+      font-size: 9pt;
+      color: #555;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+    .doc-header h1 {
+      font-size: 20pt;
+      font-weight: bold;
+      color: #1a1a2e;
+      margin: 4px 0 2px;
+    }
+    .doc-header .subtitle {
+      font-size: 10pt;
+      color: #555;
+      font-style: italic;
+    }
+    .doc-header .meta {
+      margin-top: 6px;
+      font-size: 9pt;
+      color: #888;
+      font-family: 'Courier New', monospace;
+    }
+
+    /* ── Section headings ── */
+    h2 {
+      font-size: 13.5pt;
+      color: #1a1a2e;
+      margin-top: 22px;
+      margin-bottom: 6px;
+      border-left: 4px solid #4f46e5;
+      padding-left: 10px;
+    }
+    h3 {
+      font-size: 11.5pt;
+      color: #2d2d6e;
+      margin-top: 14px;
+      margin-bottom: 4px;
+      font-weight: bold;
+    }
+
+    p { margin-bottom: 9px; }
+
+    /* ── Definition box ── */
+    .definition {
+      background: #f0f0ff;
+      border: 1px solid #c7c7f5;
+      border-left: 4px solid #4f46e5;
+      border-radius: 4px;
+      padding: 10px 14px;
+      margin: 12px 0;
+      font-size: 10.5pt;
+    }
+    .definition strong { color: #3730a3; }
+
+    /* ── Key concept box ── */
+    .key-box {
+      background: #fff7ed;
+      border: 1px solid #fed7aa;
+      border-left: 4px solid #f97316;
+      border-radius: 4px;
+      padding: 10px 14px;
+      margin: 12px 0;
+      font-size: 10.5pt;
+    }
+    .key-box strong { color: #c2410c; }
+
+    /* ── Algorithm pseudocode ── */
+    .algo {
+      background: #f8fafc;
+      border: 1px solid #cbd5e1;
+      border-radius: 6px;
+      padding: 12px 16px;
+      margin: 12px 0;
+      font-family: 'Courier New', monospace;
+      font-size: 9.5pt;
+      line-height: 1.6;
+      white-space: pre;
+    }
+    .algo .algo-title {
+      font-weight: bold;
+      font-size: 10pt;
+      color: #334155;
+      margin-bottom: 6px;
+      display: block;
+      font-family: Georgia, serif;
+      letter-spacing: 0.5px;
+    }
+
+    /* ── Table ── */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 12px 0;
+      font-size: 10pt;
+    }
+    th {
+      background: #1a1a2e;
+      color: #fff;
+      padding: 7px 10px;
+      text-align: left;
+      font-size: 9.5pt;
+    }
+    td {
+      padding: 6px 10px;
+      border-bottom: 1px solid #e2e8f0;
+    }
+    tr:nth-child(even) td { background: #f8fafc; }
+
+    /* ── Complexity badge ── */
+    .complexity {
+      display: inline-block;
+      background: #dbeafe;
+      color: #1e40af;
+      border: 1px solid #93c5fd;
+      border-radius: 4px;
+      padding: 1px 7px;
+      font-family: 'Courier New', monospace;
+      font-size: 9.5pt;
+      font-weight: bold;
+    }
+
+    ul, ol {
+      padding-left: 20px;
+      margin-bottom: 9px;
+    }
+    li { margin-bottom: 4px; }
+
+    /* ── Footer ── */
+    .footer {
+      margin-top: 28px;
+      padding-top: 8px;
+      border-top: 1px solid #ddd;
+      font-size: 8.5pt;
+      color: #aaa;
+      font-family: 'Courier New', monospace;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    /* ── Page break helper ── */
+    .page-break { page-break-before: always; }
+
+    @media print {
+      body { background: #fff; }
+      .page { margin: 0; padding: 20mm 20mm 18mm 20mm; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════════════
+     PAGE 1
+══════════════════════════════════════════════════════ -->
+<div class="page">
+
+  <div class="doc-header">
+    <div class="course-code">SC1007 &nbsp;·&nbsp; Data Structures &amp; Algorithms &nbsp;·&nbsp; Chapter 6</div>
+    <h1>Graph Algorithms</h1>
+    <div class="subtitle">Traversal, Shortest Paths, and Spanning Trees</div>
+    <div class="meta">Lecture Notes &nbsp;·&nbsp; Week 10 &nbsp;·&nbsp; Academic Year 2025/2026</div>
+  </div>
+
+  <h2>1. Introduction to Graphs</h2>
+
+  <p>
+    A <strong>graph</strong> G = (V, E) consists of a set of <em>vertices</em> (nodes) V and a set of
+    <em>edges</em> E connecting pairs of vertices. Graphs are one of the most versatile data structures
+    in computer science, used to model networks, maps, social connections, dependencies, and more.
+  </p>
+
+  <div class="definition">
+    <strong>Formal Definition:</strong> A graph G = (V, E) where V is a finite set of vertices and
+    E ⊆ V × V is a set of edges. For an undirected graph, edges have no direction. For a directed
+    graph (digraph), each edge (u, v) has a source u and destination v.
+  </div>
+
+  <h3>1.1 Graph Terminology</h3>
+  <ul>
+    <li><strong>Adjacent vertices:</strong> Two vertices u and v are adjacent if edge (u, v) ∈ E</li>
+    <li><strong>Degree:</strong> The number of edges incident to a vertex. In directed graphs, in-degree and out-degree are tracked separately.</li>
+    <li><strong>Path:</strong> A sequence of vertices v₁, v₂, …, vₖ where each consecutive pair is connected by an edge.</li>
+    <li><strong>Cycle:</strong> A path that starts and ends at the same vertex.</li>
+    <li><strong>Connected graph:</strong> An undirected graph where every pair of vertices has a path between them.</li>
+    <li><strong>Weighted graph:</strong> A graph where each edge carries a numerical weight (cost, distance, capacity).</li>
+  </ul>
+
+  <h3>1.2 Graph Representations</h3>
+  <p>Two common representations are used depending on graph density:</p>
+
+  <table>
+    <tr>
+      <th>Representation</th>
+      <th>Space</th>
+      <th>Edge lookup</th>
+      <th>Best for</th>
+    </tr>
+    <tr>
+      <td>Adjacency Matrix</td>
+      <td class="complexity">O(V²)</td>
+      <td class="complexity">O(1)</td>
+      <td>Dense graphs</td>
+    </tr>
+    <tr>
+      <td>Adjacency List</td>
+      <td class="complexity">O(V + E)</td>
+      <td class="complexity">O(degree)</td>
+      <td>Sparse graphs</td>
+    </tr>
+  </table>
+
+  <p>
+    For most practical graph problems encountered in this course, the <strong>adjacency list</strong>
+    representation is preferred due to its space efficiency when E &lt;&lt; V².
+  </p>
+
+  <h2>2. Graph Traversal</h2>
+  <p>
+    Graph traversal algorithms systematically visit every vertex in a graph exactly once.
+    The two fundamental traversal strategies are Breadth-First Search (BFS) and Depth-First Search (DFS).
+  </p>
+
+  <h3>2.1 Breadth-First Search (BFS)</h3>
+  <p>
+    BFS explores the graph level by level, visiting all neighbours of a vertex before moving deeper.
+    It uses a <strong>queue</strong> (FIFO) as its core data structure.
+  </p>
+
+  <div class="algo"><span class="algo-title">Algorithm: BFS(G, source s)</span>for each vertex u ∈ V − {s}:
+    colour[u] = WHITE;  dist[u] = ∞;  parent[u] = NIL
+
+colour[s] = GREY;  dist[s] = 0;  parent[s] = NIL
+Q = empty queue
+ENQUEUE(Q, s)
+
+while Q is not empty:
+    u = DEQUEUE(Q)
+    for each v adjacent to u:
+        if colour[v] == WHITE:
+            colour[v] = GREY
+            dist[v]   = dist[u] + 1
+            parent[v] = u
+            ENQUEUE(Q, v)
+    colour[u] = BLACK</div>
+
+  <p>
+    <strong>Time Complexity:</strong> <span class="complexity">O(V + E)</span> &nbsp;
+    <strong>Space:</strong> <span class="complexity">O(V)</span>
+  </p>
+
+  <div class="key-box">
+    <strong>Key property:</strong> BFS always finds the <em>shortest path</em> (in terms of number of edges)
+    from the source to any reachable vertex in an unweighted graph.
+    The <code>dist[]</code> array records these shortest distances.
+  </div>
+
+  <div class="footer">
+    <span>SC1007 — Graph Algorithms · Chapter 6</span>
+    <span>Page 1 of 3</span>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     PAGE 2
+══════════════════════════════════════════════════════ -->
+<div class="page page-break">
+
+  <div class="doc-header">
+    <div class="course-code">SC1007 &nbsp;·&nbsp; Data Structures &amp; Algorithms &nbsp;·&nbsp; Chapter 6</div>
+    <h1>Graph Algorithms</h1>
+    <div class="subtitle">Traversal, Shortest Paths, and Spanning Trees</div>
+  </div>
+
+  <h3>2.2 Depth-First Search (DFS)</h3>
+  <p>
+    DFS explores as far as possible along each branch before backtracking. It uses a <strong>stack</strong>
+    (implicitly via recursion, or explicitly) and assigns discovery/finish timestamps to each vertex.
+  </p>
+
+  <div class="algo"><span class="algo-title">Algorithm: DFS(G)</span>for each vertex u ∈ V:
+    colour[u] = WHITE;  parent[u] = NIL
+time = 0
+
+for each vertex u ∈ V:
+    if colour[u] == WHITE:
+        DFS-VISIT(G, u)
+
+DFS-VISIT(G, u):
+    colour[u] = GREY;  time++
+    disc[u] = time
+    for each v adjacent to u:
+        if colour[v] == WHITE:
+            parent[v] = u
+            DFS-VISIT(G, v)
+    colour[u] = BLACK;  time++
+    finish[u] = time</div>
+
+  <p>
+    <strong>Time Complexity:</strong> <span class="complexity">O(V + E)</span>
+  </p>
+
+  <p>
+    DFS produces a <strong>DFS forest</strong> — a set of DFS trees. The discovery and finish timestamps
+    reveal important structural properties of the graph including back edges (cycles) and topological order.
+  </p>
+
+  <table>
+    <tr>
+      <th>Edge Type</th>
+      <th>Condition (disc/finish times)</th>
+      <th>Implication</th>
+    </tr>
+    <tr><td>Tree edge</td><td>v is WHITE when discovered</td><td>Normal DFS progression</td></tr>
+    <tr><td>Back edge</td><td>v is GREY when discovered</td><td>Cycle exists in directed graph</td></tr>
+    <tr><td>Forward edge</td><td>disc[u] &lt; disc[v], v is BLACK</td><td>Directed graphs only</td></tr>
+    <tr><td>Cross edge</td><td>disc[u] &gt; disc[v], v is BLACK</td><td>Directed graphs only</td></tr>
+  </table>
+
+  <h2>3. Shortest Path Algorithms</h2>
+  <p>
+    Shortest path problems ask: given a weighted graph G and a source vertex s, find the minimum-weight
+    path from s to every other vertex (single-source shortest path, SSSP).
+  </p>
+
+  <h3>3.1 Dijkstra's Algorithm</h3>
+  <p>
+    Dijkstra's algorithm solves SSSP for graphs with <strong>non-negative edge weights</strong>.
+    It greedily selects the unvisited vertex with the smallest known distance at each step.
+  </p>
+
+  <div class="algo"><span class="algo-title">Algorithm: Dijkstra(G, w, s)</span>INITIALISE-SINGLE-SOURCE(G, s)
+S = ∅
+Q = MIN-PRIORITY-QUEUE(V)   // keyed by dist[]
+
+while Q is not empty:
+    u = EXTRACT-MIN(Q)
+    S = S ∪ {u}
+    for each vertex v adjacent to u:
+        RELAX(u, v, w)        // if dist[v] > dist[u] + w(u,v):
+                              //     dist[v] = dist[u] + w(u,v)
+                              //     parent[v] = u
+                              //     DECREASE-KEY(Q, v, dist[v])</div>
+
+  <table>
+    <tr>
+      <th>Implementation</th>
+      <th>Time Complexity</th>
+    </tr>
+    <tr><td>Array (linear scan)</td><td class="complexity">O(V²)</td></tr>
+    <tr><td>Binary min-heap</td><td class="complexity">O((V + E) log V)</td></tr>
+    <tr><td>Fibonacci heap</td><td class="complexity">O(V log V + E)</td></tr>
+  </table>
+
+  <div class="key-box">
+    <strong>Important limitation:</strong> Dijkstra's algorithm is <em>incorrect</em> when edge weights
+    are negative. For graphs with negative weights, use the Bellman-Ford algorithm instead.
+  </div>
+
+  <h3>3.2 Bellman-Ford Algorithm</h3>
+  <p>
+    Bellman-Ford handles <strong>negative edge weights</strong> and can detect negative-weight cycles.
+    It relaxes all edges V−1 times.
+  </p>
+
+  <p>
+    <strong>Time Complexity:</strong> <span class="complexity">O(VE)</span> — slower than Dijkstra but
+    more general. Returns FALSE if a negative-weight cycle is reachable from the source.
+  </p>
+
+  <div class="footer">
+    <span>SC1007 — Graph Algorithms · Chapter 6</span>
+    <span>Page 2 of 3</span>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     PAGE 3
+══════════════════════════════════════════════════════ -->
+<div class="page page-break">
+
+  <div class="doc-header">
+    <div class="course-code">SC1007 &nbsp;·&nbsp; Data Structures &amp; Algorithms &nbsp;·&nbsp; Chapter 6</div>
+    <h1>Graph Algorithms</h1>
+    <div class="subtitle">Traversal, Shortest Paths, and Spanning Trees</div>
+  </div>
+
+  <h2>4. Minimum Spanning Trees</h2>
+  <p>
+    A <strong>spanning tree</strong> of a connected undirected graph G is a subgraph that is a tree
+    and includes all vertices of G. A <strong>Minimum Spanning Tree (MST)</strong> is the spanning
+    tree with the minimum total edge weight.
+  </p>
+
+  <div class="definition">
+    <strong>MST Property (Cut Property):</strong> For any cut (S, V−S) of graph G, the minimum weight
+    edge crossing the cut is always included in some MST of G.
+  </div>
+
+  <h3>4.1 Kruskal's Algorithm</h3>
+  <p>
+    Kruskal's algorithm builds the MST by greedily adding the cheapest edge that does not form a cycle.
+    It uses a <strong>Union-Find (Disjoint Set Union)</strong> data structure to detect cycles efficiently.
+  </p>
+
+  <div class="algo"><span class="algo-title">Algorithm: Kruskal(G, w)</span>A = ∅
+for each vertex v ∈ V:
+    MAKE-SET(v)
+
+sort edges E in non-decreasing order of weight w
+
+for each edge (u, v) in sorted order:
+    if FIND-SET(u) ≠ FIND-SET(v):
+        A = A ∪ {(u, v)}
+        UNION(u, v)
+
+return A</div>
+
+  <p>
+    <strong>Time Complexity:</strong> <span class="complexity">O(E log E)</span> (dominated by sorting)
+  </p>
+
+  <h3>4.2 Prim's Algorithm</h3>
+  <p>
+    Prim's algorithm grows the MST one vertex at a time, always adding the cheapest edge connecting
+    the current tree to a vertex outside it. It is similar in structure to Dijkstra's algorithm.
+  </p>
+
+  <p>
+    <strong>Time Complexity:</strong> <span class="complexity">O(E log V)</span> with a binary min-heap.
+  </p>
+
+  <table>
+    <tr>
+      <th>Algorithm</th>
+      <th>Strategy</th>
+      <th>Data Structure</th>
+      <th>Complexity</th>
+    </tr>
+    <tr><td>Kruskal</td><td>Edge-based greedy</td><td>Union-Find</td><td class="complexity">O(E log E)</td></tr>
+    <tr><td>Prim</td><td>Vertex-based greedy</td><td>Min priority queue</td><td class="complexity">O(E log V)</td></tr>
+  </table>
+
+  <h2>5. Common Exam Mistakes &amp; Pitfalls</h2>
+  <ul>
+    <li><strong>Using Dijkstra with negative weights</strong> — always check for negative edges first; use Bellman-Ford instead.</li>
+    <li><strong>BFS vs DFS for shortest path</strong> — BFS gives shortest path by edge count in unweighted graphs; DFS does not.</li>
+    <li><strong>Forgetting to initialise dist[] = ∞</strong> — a common bug in Dijkstra implementations.</li>
+    <li><strong>Back edges indicate cycles</strong> — in DFS, a back edge means a cycle exists; critical for cycle detection.</li>
+    <li><strong>MST is not unique</strong> — when edge weights are not all distinct, multiple MSTs may exist with equal total weight.</li>
+  </ul>
+
+  <h2>6. Summary of Complexity</h2>
+
+  <table>
+    <tr>
+      <th>Algorithm</th>
+      <th>Use Case</th>
+      <th>Time Complexity</th>
+      <th>Constraints</th>
+    </tr>
+    <tr><td>BFS</td><td>Unweighted shortest path / traversal</td><td class="complexity">O(V + E)</td><td>Unweighted</td></tr>
+    <tr><td>DFS</td><td>Cycle detection, topological sort</td><td class="complexity">O(V + E)</td><td>Any graph</td></tr>
+    <tr><td>Dijkstra</td><td>SSSP weighted</td><td class="complexity">O((V+E) log V)</td><td>Non-negative weights</td></tr>
+    <tr><td>Bellman-Ford</td><td>SSSP with negative weights</td><td class="complexity">O(VE)</td><td>No negative cycles</td></tr>
+    <tr><td>Kruskal</td><td>Minimum Spanning Tree</td><td class="complexity">O(E log E)</td><td>Undirected, connected</td></tr>
+    <tr><td>Prim</td><td>Minimum Spanning Tree</td><td class="complexity">O(E log V)</td><td>Undirected, connected</td></tr>
+  </table>
+
+  <div class="key-box">
+    <strong>Exam tip:</strong> Always state the algorithm used, its time complexity, and any assumptions
+    (e.g. non-negative weights for Dijkstra). Partial credit is given for correct algorithm identification
+    even if implementation details are incomplete.
+  </div>
+
+  <div class="footer">
+    <span>SC1007 — Graph Algorithms · Chapter 6</span>
+    <span>Page 3 of 3</span>
+  </div>
+</div>
+
+</body>
+</html>
